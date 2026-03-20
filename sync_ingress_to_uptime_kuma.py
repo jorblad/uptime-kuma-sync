@@ -41,8 +41,16 @@ def auth_headers():
 # Uptime Kuma API adapters (adjust if your version differs)
 def list_monitors() -> List[Dict]:
     r = requests.get(f"{UPTIME_KUMA_BASE}/api/monitors", headers=auth_headers(), timeout=15)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r.raise_for_status()
+    except requests.HTTPError:
+        logger.error("list_monitors: HTTP error %s: %s", r.status_code, r.text)
+        raise
+    try:
+        return r.json()
+    except Exception as e:
+        logger.error("list_monitors: failed to parse JSON response (status=%s). Response body: %s", r.status_code, r.text)
+        raise RuntimeError(f"Failed to parse JSON from Uptime Kuma /api/monitors: {e}; response={r.text}")
 
 def create_monitor(url: str, name: str, monitor_config: Dict) -> int:
     payload = {"name": name, "url": url, **monitor_config}
