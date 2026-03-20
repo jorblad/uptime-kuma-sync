@@ -40,7 +40,7 @@ def auth_headers():
 
 # Uptime Kuma API adapters (adjust if your version differs)
 def list_monitors() -> List[Dict]:
-    r = requests.get(f"{UPTIME_KUMA_BASE}/api/monitors", headers=auth_headers(), timeout=15)
+    r = requests.get(f"{UPTIME_KUMA_BASE}/monitors", headers=auth_headers(), timeout=15)
     try:
         r.raise_for_status()
     except requests.HTTPError:
@@ -50,11 +50,11 @@ def list_monitors() -> List[Dict]:
         return r.json()
     except Exception as e:
         logger.error("list_monitors: failed to parse JSON response (status=%s). Response body: %s", r.status_code, r.text)
-        raise RuntimeError(f"Failed to parse JSON from Uptime Kuma /api/monitors: {e}; response={r.text}")
+        raise RuntimeError(f"Failed to parse JSON from Uptime Kuma /monitors: {e}; response={r.text}")
 
 def create_monitor(url: str, name: str, monitor_config: Dict) -> int:
     payload = {"name": name, "url": url, **monitor_config}
-    r = requests.post(f"{UPTIME_KUMA_BASE}/api/monitors/new", headers=auth_headers(), json=payload, timeout=15)
+    r = requests.post(f"{UPTIME_KUMA_BASE}/monitors/new", headers=auth_headers(), json=payload, timeout=15)
     r.raise_for_status()
     resp = r.json()
     if isinstance(resp, dict) and "id" in resp:
@@ -68,7 +68,7 @@ def create_monitor(url: str, name: str, monitor_config: Dict) -> int:
 
 def update_monitor(monitor_id: int, url: str, name: str, monitor_config: Dict) -> None:
     payload = {"name": name, "url": url, **monitor_config}
-    r = requests.put(f"{UPTIME_KUMA_BASE}/api/monitors/{monitor_id}", headers=auth_headers(), json=payload, timeout=15)
+    r = requests.put(f"{UPTIME_KUMA_BASE}/monitors/{monitor_id}", headers=auth_headers(), json=payload, timeout=15)
     r.raise_for_status()
 
 # Kubernetes helpers
