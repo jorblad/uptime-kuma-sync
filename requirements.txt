@@ -1,2 +1,2 @@
-kubernetes>=28.1.0,<36
+kubernetes>=36,<37
 requests>=2.31.0,<3
